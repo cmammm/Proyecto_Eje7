@@ -1,4 +1,3 @@
-/* Reset básico */
 * {
   margin: 0;
   padding: 0;
@@ -8,28 +7,58 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* 🚫 evita scroll */
+  overflow: hidden;
   background: black;
+  font-family: sans-serif;
 }
 
-/* Contenedor del video */
-.video-bg {
+.intro-screen {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;  /* 👈 usa ancho real de la ventana */
-  height: 100vh; /* 👈 alto exacto de la ventana */
-  overflow: hidden;
-  z-index: -1;
-}
-
-/* Video ajustado */
-.video-bg video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
+}
+
+#intro-video {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  transform: translate(-50%, -50%);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#enlace-final {
+  display: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+#enlace-final:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+/* Aparece suavemente */
+.show {
+  display: block !important;
+  animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

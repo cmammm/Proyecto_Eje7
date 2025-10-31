@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inicio</title>
-  <link rel="stylesheet" href="tutorial.css" />
+  <title>Intro</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="video-bg">
-    <video autoplay muted loop id="background-video" playsinline>
-      <source src="assets/fondo_menu.mp4" type="video/mp4">
+  <div class="intro-screen">
+    <video id="intro-video" autoplay muted playsinline>
+      <source src="assets/intro.mp4" type="video/mp4">
       Tu navegador no soporta video.
     </video>
+    <div class="overlay">
+      <a href="menu.html" id="enlace-final" class="hidden">Inicio</a>
+    </div>
   </div>
 
   <script src="script.js"></script>
