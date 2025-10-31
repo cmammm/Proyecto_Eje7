@@ -1,0 +1,35 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* 🚫 evita scroll */
+  background: black;
+}
+
+/* Contenedor del video */
+.video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;  /* 👈 usa ancho real de la ventana */
+  height: 100vh; /* 👈 alto exacto de la ventana */
+  overflow: hidden;
+  z-index: -1;
+}
+
+/* Video ajustado */
+.video-bg video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+}
