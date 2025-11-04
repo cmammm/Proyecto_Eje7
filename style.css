@@ -1,64 +1,72 @@
-* {
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
   overflow: hidden;
-  background: black;
-  font-family: sans-serif;
 }
 
-.intro-screen {
+#canvas-container {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  z-index: 0; /* atrás */
 }
 
-#intro-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+#texto {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* encima */
+  font-size: 64px;
+  font-family: sans-serif;
+  color: rgb(0, 0, 0);
+  text-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#enlace-final {
-  display: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: black;
-  padding: 14px 28px;
-  border-radius: 8px;
+/* animación del salto */
+a {
   text-decoration: none;
-  font-size: 1.2rem;
-  font-weight: bold;
-  transition: 0.3s ease;
+  color: inherit;
 }
 
-#enlace-final:hover {
-  background: white;
-  transform: scale(1.05);
+span {
+  display: inline-block;
+  animation: saltar 1s infinite;
 }
 
-/* Aparece suavemente */
-.show {
-  display: block !important;
-  animation: fadeIn 1s ease forwards;
+span:nth-child(2) { animation-delay: 0.1s; }
+span:nth-child(3) { animation-delay: 0.2s; }
+span:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes saltar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+/* Enlace y animación */
+a {
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+}
+
+span {
+  display: inline-block;
+  animation: saltar 1s infinite;
+}
+
+span:nth-child(2) { animation-delay: 0.1s; }
+span:nth-child(3) { animation-delay: 0.2s; }
+span:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes saltar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* efecto al pasar el mouse */
+a:hover span {
+  color: #ff69b4;
+  text-shadow: 0 0 10px #ff69b4;
 }

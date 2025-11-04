@@ -4,17 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="intro-screen">
-    <video id="intro-video" autoplay muted playsinline>
-      <source src="assets/intro.mp4" type="video/mp4">
-      Tu navegador no soporta video.
-    </video>
-    <div class="overlay">
-      <a href="menu.html" id="enlace-final" class="hidden">Inicio</a>
-    </div>
+  <div id="canvas-container"></div>
+
+  <!-- Texto con enlace -->
+  <div id="texto">
+    <a href="menu/menu.html" target="_blank">
+      <span>ᔕ</span><span>Ꭵ</span><span>Ǥ</span><span>ᑌ</span><span>ᗴ</span><span>ᔕ</span>
+      <span> </span>
+      <span>丅</span><span>ᑌ</span>
+    </a>
   </div>
 
   <script src="script.js"></script>
