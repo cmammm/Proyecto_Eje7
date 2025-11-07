@@ -1,72 +1,71 @@
 let bodyPose;
 let video;
 let poses = [];
-let connections;
-let painting;
+let countdown = 10; // ⏳ segundos
+let lastSecond = 0;
+let capturedImage;
+let photoTaken = false;
 
 function preload() {
-  // Load the bodyPose model
-  bodyPose = ml5.bodyPose({flipped: true});
-}
-
-function mousePressed() {
-  console.log(poses);
+  bodyPose = ml5.bodyPose({ flipped: true });
 }
 
 function setup() {
-  // Lienzo de pantalla
   createCanvas(windowWidth, windowHeight);
-  // Crea una capa para gráficos
-  painting = createGraphics(windowWidth, windowHeight);
-  painting.clear();
-  // Crea el video y lo esconde
-  video = createCapture(VIDEO, {flipped: true});
-  video.size(windowWidth, windowHeight);
+  video = createCapture(VIDEO);
+  video.size(width, height);
   video.hide();
-  // Inicia la detección de poses en el video de la webcam
+
   bodyPose.detectStart(video, gotPoses);
-  // Obtiene la información de las conexiones del esqueleto
-  connections = bodyPose.getSkeleton();
+
+  textAlign(CENTER, CENTER);
+  textSize(64);
+  fill(255);
 }
 
-// Callback function para cuando el modelo devuelve los datos de la pose
 function gotPoses(results) {
-  // Almacena los resultados del modelo en una variable global
   poses = results;
 }
 
 function draw() {
-  // Muestra el video
+  background(0);
   image(video, 0, 0, width, height);
-  
-  // Dibuja el esqueleto (líneas entre puntos clave)
-  for (let i = 0; i < poses.length; i++) {
-    let pose = poses[i];
-    for (let j = 0; j < connections.length; j++) {
-      let pointAIndex = connections[j][0];
-      let pointBIndex = connections[j][1];
-      let pointA = pose.keypoints[pointAIndex];
-      let pointB = pose.keypoints[pointBIndex];
-      
-      // Solo dibuja una línea si ambos puntos tienen una alta confianza
-      if (pointA.confidence > 0.1 && pointB.confidence > 0.1) {
-        stroke(255, 0, 0); // Color rojo para las conexiones
-        strokeWeight(2);
-        line(pointA.x, pointA.y, pointB.x, pointB.y);
-      }
+
+  // 🕒 Contador visual
+  if (!photoTaken) {
+    if (millis() - lastSecond > 1000) {
+      countdown--;
+      lastSecond = millis();
     }
 
-    // Dibuja los puntos clave del cuerpo
-    for (let j = 0; j < pose.keypoints.length; j++) {
-      let keypoint = pose.keypoints[j];
-      if (keypoint.confidence > 0.1) {
-        fill(0, 255, 0); // Color verde para los puntos
-        noStroke();
-        circle(keypoint.x, keypoint.y, 10);
-      }
+    textSize(100);
+    fill(255, 150, 150);
+    text(countdown, width / 2, height / 2);
+
+    // Cuando el contador llega a 0 → tomar "foto"
+    if (countdown <= 0) {
+      takePhoto();
+      photoTaken = true;
     }
+  } else if (capturedImage) {
+    // Mostrar la imagen tomada
+    image(capturedImage, 0, 0, width, height);
+
+    fill(255);
+    textSize(48);
+    text("Foto tomada", width / 2, height - 80);
   }
+}
 
-  // Aquí colocamos nuestra capa para dibujar hecha con createGraphics
-  image(painting, 0, 0);
+function takePhoto() {
+  // Guarda una copia del canvas (foto)
+  capturedImage = get();
+  console.log("Foto tomada y guardada en variable 'capturedImage'");
+
+  // Si quieres descargarla directamente:
+  // saveCanvas("mi_foto", "png");
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
