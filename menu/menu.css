@@ -1,3 +1,42 @@
 body {
-    background-color: #eae4da;
+  background-color: rgb(234, 228, 218);
+  margin: 0;
+  padding: 0;}
+
+#p{color:rgb(53, 39, 35);
+    font-size: 60px;
+    text-align: left;}
+
+
+a{
+  position: fixed; 
+  right: 10%; /* lado derecho >>>*/
+  font-family: sans-serif;
+  color: black;
+  /*font-size: 64px;*/
+}
+
+.link1{top: 30%;}
+.link2{top: 50%;}
+.link3{top: 70%;}
+
+/* Animación de las letras */
+span {
+  display: inline-block;
+  animation: saltar 2s ease-in-out infinite; /* más lento y suave */
+  cursor: pointer;
+}
+
+span:nth-child(2) { animation-delay: 0.1s; }
+span:nth-child(3) { animation-delay: 0.2s; }
+span:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes saltar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Efecto al pasar el mouse */
+a:hover span {
+  color: #ff69b4;
 }
