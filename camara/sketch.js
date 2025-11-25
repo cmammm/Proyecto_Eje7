@@ -1,127 +1,148 @@
-let bodyPose;
 let video;
-let poses = [];
-
-let startDelay = 5000;
-let countdown = 10;
+let waitTime = 5;       
+let countdown = 5;      
+let startWait = true;
+let startCountdown = false;
+let photoTaken = false;
 let lastSecond = 0;
 
-let countdownStarted = false;
-let photoTaken = false;
-let capturedImage;
-
-// 👉 VIDEO FILTRO
-let filtro;
-
-function preload() {
-  bodyPose = ml5.bodyPose({ flipped: true });
-
-  filtro = createVideo("assets/Fondocam.mp4");
-  filtro.hide();
-}
+// Capa de trazos
+let scratchLayer;
+let strokes = [];
+let maxStrokes = 40;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  //Cámara
+  // Cámara
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
 
-  //iniciar bodypose
-  bodyPose.detectStart(video, gotPoses);
-
-  //reproducir filtro encima
-  filtro.loop();
-  filtro.volume(0);
-
-  textAlign(CENTER, CENTER);
-  textSize(64);
-
-  //espera 5s y luego activa el contador
-  setTimeout(() => {
-    countdownStarted = true;
-    lastSecond = millis();
-  }, startDelay);
-}
-
-function gotPoses(results) {
-  poses = results;
+  // Capa de trazos
+  scratchLayer = createGraphics(windowWidth, windowHeight);
+  scratchLayer.clear();
 }
 
 function draw() {
-  background(0);
+  background(255);
 
-  //Cámara
+  // 1) Cámara
   image(video, 0, 0, width, height);
 
-  //Filtro
-  image(filtro, 0, 0, width, height);
+  // 2) Actualizar y dibujar trazos curvos
+  updateStrokes();
+  drawStrokes();
 
-  //cuadro
-  drawFaceBox();
+  // 3) Temporizador
+  timerLogic();
+}
 
-  //contador
-  if (countdownStarted && !photoTaken) {
-    if (millis() - lastSecond > 1000) {
+// ------------------- Trazos curvos con rastro -------------------
+function updateStrokes() {
+  // Crear nuevos trazos
+  while (strokes.length < maxStrokes) {
+    let s = {
+      x: random(width),
+      y: random(height),
+      prevX: 0,
+      prevY: 0,
+      life: random(100, 200),
+      color: color(random(255), random(255), random(255), 150),
+      weight: random(2, 4),
+      vx: random(-2, 2),
+      vy: random(-2, 2)
+    };
+    s.prevX = s.x;
+    s.prevY = s.y;
+    strokes.push(s);
+  }
+
+  // Mover trazos
+  for (let i = strokes.length - 1; i >= 0; i--) {
+    let s = strokes[i];
+    s.prevX = s.x;
+    s.prevY = s.y;
+
+    // Movimiento suave
+    s.vx += random(-0.2, 0.2);
+    s.vy += random(-0.2, 0.2);
+
+    s.x += s.vx;
+    s.y += s.vy;
+
+    // Limitar dentro del canvas
+    s.x = constrain(s.x, 0, width);
+    s.y = constrain(s.y, 0, height);
+
+    s.life--;
+    if (s.life <= 0) {
+      strokes.splice(i, 1);
+    }
+  }
+}
+
+function drawStrokes() {
+  // En vez de limpiar completamente, dibujamos fondo semitransparente
+  scratchLayer.fill(255, 255, 255, 20); // blanco con alpha
+  scratchLayer.noStroke();
+  scratchLayer.rect(0, 0, width, height);
+
+  // Dibujar todos los trazos
+  for (let s of strokes) {
+    scratchLayer.stroke(s.color);
+    scratchLayer.strokeWeight(s.weight);
+    scratchLayer.line(s.prevX, s.prevY, s.x, s.y);
+  }
+
+  // Mostrar capa
+  image(scratchLayer, 0, 0);
+}
+
+// ------------------- Temporizador -------------------
+function timerLogic() {
+  let currentSecond = floor(millis() / 1000);
+
+  if (currentSecond !== lastSecond) {
+    lastSecond = currentSecond;
+
+    if (startWait) {
+      waitTime--;
+      if (waitTime <= 0) {
+        startWait = false;
+        startCountdown = true;
+      }
+    } 
+    else if (startCountdown) {
       countdown--;
-      lastSecond = millis();
-    }
-
-    fill(255, 80, 120);
-    textSize(100);
-    text(countdown, width / 2, height / 2);
-
-    if (countdown <= 0) {
-      takePhoto();
-      photoTaken = true;
+      if (countdown <= 0 && !photoTaken) {
+        takePhoto();
+        photoTaken = true;
+        startCountdown = false;
+      }
     }
   }
 
-  //MOSTRAR FOTO TOMADA
-  if (photoTaken && capturedImage) {
-    image(capturedImage, 0, 0, width, height);
-
-    fill(255);
-    textSize(48);
-    text("📸 Foto tomada", width / 2, height - 80);
+  if (startWait) {
+    showBigText("Espera: " + waitTime);
+  } 
+  else if (startCountdown) {
+    showBigText(countdown);
   }
 }
 
-function drawFaceBox() {
-  if (poses.length > 0) {
-    let keypoints = poses[0].keypoints;
-
-    let leftEye = keypoints.find(k => k.name === "left_eye");
-    let rightEye = keypoints.find(k => k.name === "right_eye");
-    let nose = keypoints.find(k => k.name === "nose");
-
-    if (
-      leftEye && rightEye && nose &&
-      leftEye.confidence > 0.1 &&
-      rightEye.confidence > 0.1 &&
-      nose.confidence > 0.1
-    ) {
-      // distancia entre ojos → tamaño del cuadro
-      let faceW = dist(leftEye.x, leftEye.y, rightEye.x, rightEye.y) * 2.2;
-      let faceH = faceW * 1.3;
-
-      let centerX = (leftEye.x + rightEye.x) / 2;
-      let centerY = (leftEye.y + rightEye.y) / 2 - faceH * 0.25;
-
-      noFill();
-      stroke(0, 255, 255);
-      strokeWeight(4);
-      rect(centerX - faceW / 2, centerY - faceH / 2, faceW, faceH);
-    }
-  }
+// ------------------- Texto -------------------
+function showBigText(msg) {
+  push();
+  fill(0);
+  noStroke();
+  textSize(120);
+  textAlign(CENTER, CENTER);
+  text(msg, width/2, height/2);
+  pop();
 }
 
+// ------------------- Captura -------------------
 function takePhoto() {
-  capturedImage = get();
-  console.log("Foto tomada.");
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  saveCanvas("foto_mixmedia_rastro", "png");
 }
