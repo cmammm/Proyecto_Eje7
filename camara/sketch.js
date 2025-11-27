@@ -1,110 +1,158 @@
 let video;
-let waitTime = 5;       
-let countdown = 5;      
+let videoReady = false;
+
+let scratchLayer;
+let circleLayer;
+
+let strokes = [];
+let circles = [];
+
+let maxStrokes = 40;
+let maxCircles = 25;
+
+let waitTime = 5;
+let countdown = 5;
 let startWait = true;
 let startCountdown = false;
-let photoTaken = false;
 let lastSecond = 0;
-
-// Capa de trazos
-let scratchLayer;
-let strokes = [];
-let maxStrokes = 40;
+let photoTaken = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  // Cámara
-  video = createCapture(VIDEO);
-  video.size(width, height);
+  video = createCapture(VIDEO, { flipped: true });
+  video.size(windowWidth, windowHeight);
   video.hide();
 
-  // Capa de trazos
-  scratchLayer = createGraphics(windowWidth, windowHeight);
-  scratchLayer.clear();
+  // Esperar a que la cámara realmente cargue
+  video.elt.onloadeddata = () => {
+    videoReady = true;
+
+    scratchLayer = createGraphics(width, height);
+    circleLayer = createGraphics(width, height);
+
+    scratchLayer.clear();
+    circleLayer.clear();
+  };
 }
 
 function draw() {
-  background(255);
+  background(0);
 
-  // 1) Cámara
+  if (!videoReady) {
+    fill(255);
+    textSize(40);
+    textAlign(CENTER, CENTER);
+    text("Cargando cámara...", width / 2, height / 2);
+    return;
+  }
+
+  // 1) Cámara visible SIEMPRE
   image(video, 0, 0, width, height);
 
-  // 2) Actualizar y dibujar trazos curvos
+  // 2) Círculos
+  updateCircles();
+  drawCircles();
+  image(circleLayer, 0, 0);
+
+  // 3) Trazos sin blanquear la pantalla
   updateStrokes();
   drawStrokes();
 
-  // 3) Temporizador
+  // 4) Temporizador y foto
   timerLogic();
 }
 
-// ------------------- Trazos curvos con rastro -------------------
-function updateStrokes() {
-  // Crear nuevos trazos
-  while (strokes.length < maxStrokes) {
-    let s = {
+//
+// ------------------------------
+//   CÍRCULOS
+// ------------------------------
+function updateCircles() {
+  while (circles.length < maxCircles) {
+    circles.push({
       x: random(width),
       y: random(height),
-      prevX: 0,
-      prevY: 0,
-      life: random(100, 200),
-      color: color(random(255), random(255), random(255), 150),
-      weight: random(2, 4),
-      vx: random(-2, 2),
-      vy: random(-2, 2)
-    };
-    s.prevX = s.x;
-    s.prevY = s.y;
-    strokes.push(s);
+      size: random(20, 70),
+      alpha: 200,
+      life: random(80, 150),
+      vx: random(-1, 1),
+      vy: random(-1, 1),
+      col: color(random(150, 255), random(100, 255), random(255), 200)
+    });
   }
 
-  // Mover trazos
+  for (let i = circles.length - 1; i >= 0; i--) {
+    let c = circles[i];
+    c.x += c.vx;
+    c.y += c.vy;
+
+    c.life--;
+    c.alpha -= 2;
+
+    if (c.life <= 0 || c.alpha <= 0) circles.splice(i, 1);
+  }
+}
+
+function drawCircles() {
+  circleLayer.clear();
+  for (let c of circles) {
+    circleLayer.noStroke();
+    circleLayer.fill(red(c.col), green(c.col), blue(c.col), c.alpha);
+    circleLayer.ellipse(c.x, c.y, c.size);
+  }
+}
+
+//
+// ------------------------------
+//   TRAZOS (NO BLANQUEA LA PANTALLA)
+// ------------------------------
+function updateStrokes() {
+  while (strokes.length < maxStrokes) {
+    strokes.push({
+      x: random(width),
+      y: random(height),
+      px: random(width),
+      py: random(height),
+      vx: random(-1.5, 1.5),
+      vy: random(-1.5, 1.5),
+      life: random(100, 200),
+      col: color(random(255), random(255), random(255), 150),
+      weight: random(2, 4)
+    });
+  }
+
   for (let i = strokes.length - 1; i >= 0; i--) {
     let s = strokes[i];
-    s.prevX = s.x;
-    s.prevY = s.y;
-
-    // Movimiento suave
-    s.vx += random(-0.2, 0.2);
-    s.vy += random(-0.2, 0.2);
-
+    s.px = s.x;
+    s.py = s.y;
     s.x += s.vx;
     s.y += s.vy;
-
-    // Limitar dentro del canvas
-    s.x = constrain(s.x, 0, width);
-    s.y = constrain(s.y, 0, height);
-
     s.life--;
-    if (s.life <= 0) {
-      strokes.splice(i, 1);
-    }
+
+    if (s.life <= 0) strokes.splice(i, 1);
   }
 }
 
 function drawStrokes() {
-  // En vez de limpiar completamente, dibujamos fondo semitransparente
-  scratchLayer.fill(255, 255, 255, 20); // blanco con alpha
-  scratchLayer.noStroke();
-  scratchLayer.rect(0, 0, width, height);
-
-  // Dibujar todos los trazos
+  scratchLayer.clear();
   for (let s of strokes) {
-    scratchLayer.stroke(s.color);
+    scratchLayer.stroke(s.col);
     scratchLayer.strokeWeight(s.weight);
-    scratchLayer.line(s.prevX, s.prevY, s.x, s.y);
+    scratchLayer.line(s.px, s.py, s.x, s.y);
   }
-
-  // Mostrar capa
   image(scratchLayer, 0, 0);
 }
 
-// ------------------- Temporizador -------------------
+//
+// ------------------------------
+//   TEMPORIZADOR
+// ------------------------------
 function timerLogic() {
-  let currentSecond = floor(millis() / 1000);
+  if (photoTaken) return; // ✨ SE DETIENE TODO
 
-  if (currentSecond !== lastSecond) {
-    lastSecond = currentSecond;
+  let sec = floor(millis() / 1000);
+  if (sec !== lastSecond) {
+    lastSecond = sec;
 
     if (startWait) {
       waitTime--;
@@ -112,37 +160,24 @@ function timerLogic() {
         startWait = false;
         startCountdown = true;
       }
-    } 
-    else if (startCountdown) {
+    } else if (startCountdown) {
       countdown--;
-      if (countdown <= 0 && !photoTaken) {
-        takePhoto();
+      if (countdown <= 0) {
+        saveCanvas("foto", "png");
         photoTaken = true;
-        startCountdown = false;
       }
     }
   }
 
-  if (startWait) {
-    showBigText("Espera: " + waitTime);
-  } 
-  else if (startCountdown) {
-    showBigText(countdown);
-  }
+  if (startWait) showBigText("Espera: " + waitTime);
+  else if (startCountdown) showBigText(countdown);
 }
 
-// ------------------- Texto -------------------
-function showBigText(msg) {
-  push();
-  fill(0);
-  noStroke();
-  textSize(120);
+function showBigText(t) {
+  fill(255);
+  stroke(0);
+  strokeWeight(4);
+  textSize(100);
   textAlign(CENTER, CENTER);
-  text(msg, width/2, height/2);
-  pop();
-}
-
-// ------------------- Captura -------------------
-function takePhoto() {
-  saveCanvas("foto_mixmedia_rastro", "png");
+  text(t, width / 2, height / 2);
 }
