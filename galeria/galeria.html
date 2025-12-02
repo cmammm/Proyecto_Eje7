@@ -3,10 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria</title>
+    <title>Galería + Animación</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="galeria.css">
 </head>
 <body>
-    <script src="galeria.css"></script>
+
+    <!-- Botón -->
+    <button id="playBtn">▶ Reproducir Animación</button>
+
+    <!-- Layer / Canvas de animación -->
+    <div id="animationLayer">
+        <div id="slideshow"></div>
+    </div>
+
+    <!-- Galería abajo -->
+    <h2>Galería</h2>
+    <div id="galeria"></div>
+
+    <script src="galeria.js"></script>
 </body>
 </html>
