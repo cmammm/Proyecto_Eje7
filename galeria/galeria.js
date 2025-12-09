@@ -11,9 +11,9 @@ const animationLayer = document.getElementById("animationLayer");
 const playBtn = document.getElementById("playBtn");
 
 let images = [];
+let slideshowImages = [];
 let index = 0;
 let interval;
-
 
 // 1. CARGAR FOTOS
 (async () => {
@@ -47,39 +47,39 @@ let interval;
             showSingleImage(imageUrl);
         });
 
-        // Imagen para ANIMACIÓN
-        const imgSlide = document.createElement("img");
-        imgSlide.src = imageUrl;
-        slideshow.appendChild(imgSlide);
-
-        images.push(imgSlide);
-    }
-
-    if (images.length > 0) {
-        images[0].classList.add("active");
+        // Guardar imagen para slideshow
+        images.push(imageUrl);
     }
 })();
 
-
 // 2. ANIMACIÓN SLIDESHOW
-
 playBtn.addEventListener("click", () => {
     if (images.length === 0) return;
 
     playBtn.style.display = "none";  
     animationLayer.style.display = "flex";
 
+    // Limpiar slideshow actual
+    slideshow.innerHTML = "";
+
+    // Reconstruir slideshow con todas las imágenes
+    slideshowImages = images.map(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        slideshow.appendChild(img);
+        return img;
+    });
+
     index = 0;
-    images.forEach(img => img.classList.remove("active"));
-    images[0].classList.add("active");
+    slideshowImages.forEach(img => img.classList.remove("active"));
+    slideshowImages[0].classList.add("active");
 
     interval = setInterval(() => {
-        images[index].classList.remove("active");
-        index = (index + 1) % images.length;
-        images[index].classList.add("active");
+        slideshowImages[index].classList.remove("active");
+        index = (index + 1) % slideshowImages.length;
+        slideshowImages[index].classList.add("active");
     }, 500);
 });
-
 
 // Cerrar animación
 animationLayer.addEventListener("click", () => {
@@ -88,9 +88,7 @@ animationLayer.addEventListener("click", () => {
     clearInterval(interval);
 });
 
-
 // 3. VER UNA FOTO EN GRANDE
-
 function showSingleImage(url) {
     animationLayer.style.display = "flex";
     playBtn.style.display = "none";

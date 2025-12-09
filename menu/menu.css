@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'MiFuente';
-  src: url('../assets/chemyretro/TT_Version/ChemyRetro_v01.ttf') format('truetype');
+  src: url('../assets/babel_sans/BabelSans-Oblique.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -12,7 +12,7 @@ body {
   overflow: hidden;
 }
 
-/* VIDEO DE FONDO */
+
 #bg-video {
   position: fixed;
   top: 0;
@@ -20,7 +20,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1;   /* detrás de todo */
+  z-index: -1;
 }
 
 #p {
@@ -28,24 +28,42 @@ body {
     font-size: 120px;
     text-align: left;
     margin-left: 5%;
-    margin-top: 80px;
+    margin-top: 50px;
     position: relative;
     z-index: 10;
 }
 
-a {
+.menu-box {
   position: fixed;
-  right: 8%;
-  font-family: 'MiFuente', sans-serif;
-  color: black;
-  font-size: 36px;
-  text-decoration: none;
-  z-index: 10;
+  right: 0;
+  width: 24%;             
+  height: 95px;
+  background: #000;       
+  border-radius: 50px 0 0 50px;
+  display: flex;
+  align-items: center;
+  padding-right: 5%;
+  z-index: 5;
 }
 
-.link1 { top: 30%; }
-.link2 { top: 50%; }
-.link3 { top: 70%; }
+
+
+.box1 { top: 30%; }
+.box2 { top: 50%; }
+.box3 { top: 70%; }
+
+
+a {
+  color: #eae4da;
+  font-size: 36px;
+  text-decoration: none;
+  font-family: 'MiFuente', sans-serif;
+  z-index: 10;
+  text-align: right; 
+  width: 100%; 
+  display: block;
+}
+
 
 span {
   display: inline-block;

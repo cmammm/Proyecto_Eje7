@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'MiFuente';
-    src: url('/assets/chemyretro/TT_Version/ChemyRetro_v01.ttf') format('truetype');
+    src: url('../assets/babel_sans/BabelSans-Oblique.ttf') format('truetype');
 }
 
 
@@ -25,8 +25,8 @@ body {
 
 #playBtn {
     position: fixed;
-    top: 120px;
-    left: 45%;
+    top: 190px;
+    left: 13%;
     transform: translateX(-50%);
     font-size: 36px;
     padding: 14px 28px;
@@ -78,13 +78,35 @@ body {
 }
 
 
+
 h2 {
     color: black;
     font-size: 120px;
     text-align: left;
     margin-left: 5%;
-    margin-top: 80px;
+    margin-top: 50px;
+    z-index: 1;
+    position: relative;
 }
+
+
+#animationLayer #slideshow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+}
+
+
+#animationLayer #slideshow img.active {
+    border: 12px solid #eae4da;
+    border-radius: 12px;
+    box-sizing: border-box;
+    max-width: 100%;
+    max-height: 100%;
+}
+
 
 
 #galeria {

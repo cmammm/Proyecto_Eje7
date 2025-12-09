@@ -8,7 +8,7 @@ const BUCKET_NAME = "fotos";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ------------------------------
-//  VARIABLES ORIGINALES
+//  VARIABLES
 // ------------------------------
 let video;
 let videoReady = false;
@@ -22,22 +22,21 @@ let circles = [];
 let maxStrokes = 40;
 let maxCircles = 25;
 
-// SOLO CONTADOR DE 5s
+// TEMPORIZADOR
+let waitTime = 3;
 let countdown = 5;
-let startCountdown = true; 
+let startWait = true;
+let startCountdown = false;
 let lastSecond = 0;
 let photoTaken = false;
+let canvas;
 
-// BODYPOSE
-let poseModel;
-let poses = [];
 
-// ------------------------------
-//  SETUP
-// ------------------------------
+
+
+
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-
+  canvas = createCanvas(windowWidth, windowHeight);
   video = createCapture(VIDEO, { flipped: true });
   video.size(windowWidth, windowHeight);
   video.hide();
@@ -48,23 +47,15 @@ function setup() {
     scratchLayer = createGraphics(width, height);
     circleLayer = createGraphics(width, height);
 
-    // 🔥 Cargar el modelo BodyPose
-    poseModel = ml5.bodyPose(video, () => {
-      console.log("BodyPose listo");
-    });
-
-    poseModel.on("pose", (results) => {
-      poses = results;
-    });
-
     scratchLayer.clear();
     circleLayer.clear();
   };
 }
 
-// ------------------------------
-//  DRAW
-// ------------------------------
+
+
+
+
 function draw() {
   background(0);
 
@@ -85,14 +76,13 @@ function draw() {
   updateStrokes();
   drawStrokes();
 
-  drawFaceMask();
-
   timerLogic();
 }
 
-// ------------------------------
-//     CÍRCULOS (NEGROS)
-// ------------------------------
+
+
+
+//   Círculos
 function updateCircles() {
   while (circles.length < maxCircles) {
     circles.push({
@@ -103,7 +93,7 @@ function updateCircles() {
       life: random(80, 150),
       vx: random(-1, 1),
       vy: random(-1, 1),
-      col: color(0, 0, 0, 200) // NEGRO
+      col: color(0, 0, 0, 200)
     });
   }
 
@@ -119,18 +109,24 @@ function updateCircles() {
   }
 }
 
+
+
+
 function drawCircles() {
   circleLayer.clear();
   for (let c of circles) {
     circleLayer.noStroke();
-    circleLayer.fill(0, 0, 0, c.alpha); // negro
+    circleLayer.fill(0, 0, 0, c.alpha);
     circleLayer.ellipse(c.x, c.y, c.size);
   }
 }
 
-// ------------------------------
-//   TRAZOS (SIN CAMBIOS RAROS)
-// ------------------------------
+
+
+
+
+
+//   Trazos
 function updateStrokes() {
   while (strokes.length < maxStrokes) {
     strokes.push({
@@ -158,6 +154,11 @@ function updateStrokes() {
   }
 }
 
+
+
+
+
+
 function drawStrokes() {
   scratchLayer.clear();
   for (let s of strokes) {
@@ -168,49 +169,40 @@ function drawStrokes() {
   image(scratchLayer, 0, 0);
 }
 
-// ------------------------------
-//   DIBUJAR CUADRADO NEGRO EN LA CARA
-// ------------------------------
-function drawFaceMask() {
-  if (poses.length === 0) return;
 
-  let keypoints = poses[0].keypoints;
 
-  let leftEye = keypoints.find(k => k.name === "left_eye");
-  let rightEye = keypoints.find(k => k.name === "right_eye");
-  let nose = keypoints.find(k => k.name === "nose");
 
-  if (!leftEye || !rightEye || !nose) return;
-
-  let faceX = (leftEye.x + rightEye.x) / 2 - 80;
-  let faceY = nose.y - 80;
-
-  fill(0);
-  noStroke();
-  rect(faceX, faceY, 160, 160);
-}
-
-// ------------------------------
-//   TEMPORIZADOR SOLO DE 5s
-// ------------------------------
+//   TempFoto
 function timerLogic() {
   if (photoTaken) return;
 
   let sec = floor(millis() / 1000);
-
   if (sec !== lastSecond) {
     lastSecond = sec;
-    countdown--;
 
-    if (countdown <= 0) {
-      takePhoto();
-      photoTaken = true;
-      return;
+    if (startWait) {
+      waitTime--;
+      if (waitTime <= 0) {
+        startWait = false;
+        startCountdown = true;
+      }
+    } else if (startCountdown) {
+      countdown--;
+      if (countdown <= 0) {
+        takePhoto();
+        photoTaken = true;
+      }
     }
   }
 
-  showBigText(countdown);
+  if (startWait) showBigText("Espera...");
+  else if (startCountdown) showBigText(countdown);
 }
+
+
+
+
+
 
 function showBigText(t) {
   fill(255);
@@ -223,27 +215,29 @@ function showBigText(t) {
 
 
 
-// ------------------------------
-//   SUBIR FOTO A SUPABASE
-// ------------------------------
-async function takePhoto() {
-  const canvas = document.querySelector("canvas");
 
-  canvas.toBlob(async (blob) => {
-    const fileName = `foto_${Date.now()}.png`;
+
+//   TOMAR FOTO Y SUBIR A SUPABASE
+async function takePhoto() {
+  canvas.elt.toBlob(async function(blob) {
+    const filename = `foto_${Date.now()}.png`;
+    const filePath = `${filename}`;
 
     const { data, error } = await supabaseClient
       .storage
       .from(BUCKET_NAME)
-      .upload(fileName, blob, {
-        contentType: "image/png",
-        upsert: true
+      .upload(filePath, blob, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: 'image/png'
       });
 
     if (error) {
-      console.error("Error subiendo imagen:", error);
+      console.error("Error al subir foto:", error);
+      alert('Error al subir foto: ' + error.message);
     } else {
-      console.log("Imagen subida:", data);
+      console.log("Foto subida correctamente:", data);
+      alert("¡Foto tomada y subida a Supabase!");
     }
-  }, "image/png");
+  }, 'image/png');
 }
