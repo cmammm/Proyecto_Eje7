@@ -1,68 +1,89 @@
-/* Fuente personalizada */
 @font-face {
     font-family: 'MiFuente';
     src: url('/assets/chemyretro/TT_Version/ChemyRetro_v01.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
 }
 
- 
+
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+}
+
 body {
-    font-family: 'MiFuente', Arial, sans-serif;
+    font-family: 'MiFuente';
     background-color: #eae4da;
     text-align: center;
-    padding-bottom: 50px;
+    margin: 0;
+    padding: 0;
 }
 
+
 #playBtn {
-    position: absolute;         
+    position: fixed;
     top: 120px;
-    left: 30%;
+    left: 45%;
+    transform: translateX(-50%);
     font-size: 36px;
     padding: 14px 28px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    background: #000000;
+    background: #000;
     color: #eae4da;
-    font-weight: bold;
-    font-family: 'MiFuente', Arial, sans-serif;
-    z-index: 1000;
+    font-family: 'MiFuente';
+    z-index: 5;
 }
 
 #playBtn:hover {
     background: #9a845d;
 }
 
+
 #animationLayer {
-    display: none; 
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.85);
-    z-index: 999;
+    z-index: 10;
     justify-content: center;
     align-items: center;
 }
 
+
 #slideshow {
-    width: 90vw;
-    height: 90vh;
+    width: 80vw;
+    height: 80vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 #slideshow img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;    
+    object-fit: contain;
     opacity: 0;
     position: absolute;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity .6s ease-in-out;
 }
 
 #slideshow img.active {
     opacity: 1;
+}
+
+
+h2 {
+    color: black;
+    font-size: 120px;
+    text-align: left;
+    margin-left: 5%;
+    margin-top: 80px;
 }
 
 
@@ -76,16 +97,7 @@ body {
 
 #galeria img {
     width: 140px;
-    height: auto;
+    border: 4px solid black;
     border-radius: 8px;
-}
-
-
-h2 {
-    color: rgb(0, 0, 0);
-    font-size: 120px; 
-    text-align: left;
-    margin-left: 5%; 
-    margin-top: 80px;
-    font-family: 'MiFuente', Arial, sans-serif;
+    cursor: pointer;
 }
