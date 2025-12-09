@@ -34,12 +34,10 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   width: 50vw;
   height: 30vh;
   background: #000;
   border-radius: 100px;
-
   z-index: 10;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
 
@@ -48,10 +46,8 @@ html, body {
   align-items: center;
 }
 
-
-
 #texto-box a {
-  font-size: 50px;
+  font-size: 120px;
   font-family: 'MiFuente', sans-serif;
   color: #eae4da;
   letter-spacing: 4px;
@@ -79,4 +75,20 @@ a {
 a:hover span {
   color: #9a845d;
   text-shadow: 0 0 10px #9a845d;
+}
+
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+  
+  #texto-box {
+    width: 70vw;
+    height: 25vh;
+    border-radius: 80px;
+  }
+
+ 
+  #texto-box a {
+    font-size: 120px;
+  }
 }
