@@ -47,7 +47,7 @@ html, body {
 }
 
 #texto-box a {
-  font-size: 150px;
+  font-size: 120px;
   font-family: 'MiFuente', sans-serif;
   color: #eae4da;
   letter-spacing: 4px;
@@ -89,6 +89,6 @@ a:hover span {
 
   
   #texto-box a {
-    font-size: 80px;
+    font-size: 120px;
   }
 }
